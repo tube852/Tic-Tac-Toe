@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>Tic Tac Toe</h1>
+    <div id="board">
+      <!-- Cells will be dynamically generated -->
+    </div>
+    <p id="status"></p>
+    <button id="reset">Reset Game</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f5f5f5;
+}
+
+.game-container {
+  text-align: center;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-gap: 5px;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  background-color: #ffffff;
+  border: 2px solid #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cell.taken {
+  pointer-events: none;
+  background-color: #ddd;
+}
+
+#status {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+#reset {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+const boardElement = document.getElementById("board");
+const statusElement = document.getElementById("status");
+const resetButton = document.getElementById("reset");
+
+let board = Array(9).fill(null);
+let currentPlayer = "X";
+let isGameOver = false;
+
+// Generate the board
+function createBoard() {
+  boardElement.innerHTML = "";
+  board.forEach((cell, index) => {
+    const cellElement = document.createElement("div");
+    cellElement.className = "cell";
+    cellElement.dataset.index = index;
+    cellElement.textContent = cell || "";
+    cellElement.addEventListener("click", handleMove);
+    boardElement.appendChild(cellElement);
+  });
+}
+
+// Handle a player's move
+function handleMove(event) {
+  const index = event.target.dataset.index;
+  if (board[index] || isGameOver) return;
+
+  board[index] = currentPlayer;
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  checkWinner();
+  createBoard();
+}
+
+// Check for a winner or draw
+function checkWinner() {
+  const winningCombos = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
+  for (const [a, b, c] of winningCombos) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      statusElement.textContent = `Player ${board[a]} wins!`;
+      isGameOver = true;
+      return;
+    }
+  }
+
+  if (!board.includes(null)) {
+    statusElement.textContent = "It's a draw!";
+    isGameOver = true;
+  } else {
+    statusElement.textContent = `Player ${currentPlayer}'s turn`;
+  }
+}
+
+// Reset the game
+resetButton.addEventListener("click", () => {
+  board = Array(9).fill(null);
+  currentPlayer = "X";
+  isGameOver = false;
+  statusElement.textContent = "Player X's turn";
+  createBoard();
+});
+
+// Initialize the game
+createBoard();
+statusElement.textContent = "Player X's turn";
